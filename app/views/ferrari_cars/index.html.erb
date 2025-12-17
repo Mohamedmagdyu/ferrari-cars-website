@@ -1,0 +1,127 @@
+<div class="min-h-screen" style="background: linear-gradient(180deg, hsl(var(--color-surface)) 0%, hsl(var(--color-surface-elevated)) 100%);">
+  
+  <!-- Page Header -->
+  <section class="relative overflow-hidden" style="background: linear-gradient(135deg, hsl(var(--color-surface-luxury)) 0%, hsl(var(--color-text-secondary)) 100%);">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+      <h1 class="text-5xl md:text-6xl font-black mb-4" style="color: hsl(var(--color-text-primary));">مجموعة فيراري</h1>
+      <p class="text-xl max-w-2xl mx-auto" style="color: hsl(var(--color-text-primary)); opacity: 0.9;">
+        اكتشف أروع سيارات فيراري الفاخرة والرياضية
+      </p>
+    </div>
+  </section>
+
+  <!-- Search and Filter Section -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="rounded-2xl p-6" style="background-color: hsl(var(--color-surface-elevated)); border: 1px solid hsl(var(--color-border)); box-shadow: var(--shadow-lg);">
+      <%= form_with url: ferrari_cars_path, method: :get, local: true, class: "flex flex-col md:flex-row gap-4" do |f| %>
+        <!-- Search Input -->
+        <div class="flex-1">
+          <%= f.text_field :search, 
+              value: params[:search],
+              placeholder: "ابحث عن سيارة...",
+              class: "form-input w-full",
+              style: "border: 1px solid hsl(var(--color-border)); background-color: hsl(var(--color-surface)); color: hsl(var(--color-text-primary)); border-radius: var(--border-radius-md); padding: 0.75rem 1rem;" %>
+        </div>
+        
+        <!-- Category Filter -->
+        <div class="md:w-64">
+          <%= f.select :category_id, 
+              options_from_collection_for_select(@categories, :id, :name, params[:category_id]),
+              { include_blank: "جميع الفئات" },
+              class: "form-select w-full",
+              style: "border: 1px solid hsl(var(--color-border)); background-color: hsl(var(--color-surface)); color: hsl(var(--color-text-primary)); border-radius: var(--border-radius-md); padding: 0.75rem 1rem;" %>
+        </div>
+        
+        <!-- Submit Button -->
+        <%= f.submit "بحث", class: "btn-primary btn-md px-8", style: "white-space: nowrap;" %>
+      <% end %>
+    </div>
+  </section>
+
+  <!-- Cars Grid -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
+    <% if @ferrari_cars.any? %>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <% @ferrari_cars.each do |car| %>
+          <div class="group relative overflow-hidden rounded-2xl transition-all duration-500 hover:scale-[1.02]" style="background-color: hsl(var(--color-surface-elevated)); border: 1px solid hsl(var(--color-border)); box-shadow: var(--shadow-xl);">
+            <!-- Car Image -->
+            <div class="aspect-[4/3] bg-gradient-to-br overflow-hidden" style="background: linear-gradient(135deg, hsl(var(--color-surface-luxury)) 0%, hsl(var(--color-text-secondary)) 100%);">
+              <% if car.image.attached? %>
+                <%= image_tag car.image, class: "w-full h-full object-cover transition-transform duration-500 group-hover:scale-110", alt: car.name %>
+              <% else %>
+                <div class="w-full h-full flex items-center justify-center">
+                  <svg class="w-32 h-32 opacity-20" style="color: hsl(var(--color-primary));" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                  </svg>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Car Details -->
+            <div class="p-6">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1">
+                  <h3 class="text-2xl font-bold mb-1" style="color: hsl(var(--color-text-primary));"><%= car.name %></h3>
+                  <p class="text-sm" style="color: hsl(var(--color-text-muted));"><%= car.model %> - <%= car.year %></p>
+                  <p class="text-xs mt-1" style="color: hsl(var(--color-text-accent));"><%= car.category.name %></p>
+                </div>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold" style="background-color: hsl(var(--color-success-bg)); color: hsl(var(--color-success));">
+                  <%= car.status == 'available' ? 'متوفر' : car.status %>
+                </span>
+              </div>
+
+              <p class="text-sm mb-4 line-clamp-2" style="color: hsl(var(--color-text-secondary)); line-height: 1.6;">
+                <%= truncate(car.description, length: 120) %>
+              </p>
+
+              <!-- Specs -->
+              <div class="flex items-center justify-between mb-4 pb-4" style="border-bottom: 1px solid hsl(var(--color-border));">
+                <div class="text-center">
+                  <div class="text-sm font-bold" style="color: hsl(var(--color-text-primary));"><%= car.top_speed %> km/h</div>
+                  <div class="text-xs" style="color: hsl(var(--color-text-muted));">السرعة</div>
+                </div>
+                <div class="text-center">
+                  <div class="text-sm font-bold" style="color: hsl(var(--color-text-primary));"><%= car.acceleration %>s</div>
+                  <div class="text-xs" style="color: hsl(var(--color-text-muted));">0-100</div>
+                </div>
+                <div class="text-center">
+                  <div class="text-sm font-bold" style="color: hsl(var(--color-text-primary));"><%= car.engine %></div>
+                  <div class="text-xs" style="color: hsl(var(--color-text-muted));">المحرك</div>
+                </div>
+              </div>
+
+              <!-- Price and CTA -->
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-5xl font-black" style="color: hsl(var(--color-primary));">$<%= number_with_delimiter(car.price.to_i) %></div>
+                </div>
+                <%= link_to ferrari_car_path(car), class: "btn-primary btn-sm inline-flex items-center gap-1 group" do %>
+                  <span>التفاصيل</span>
+                  <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Pagination -->
+      <div class="mt-12 flex justify-center">
+        <%= paginate @ferrari_cars, theme: 'twitter-bootstrap-4' %>
+      </div>
+    <% else %>
+      <!-- No Results -->
+      <div class="text-center py-16">
+        <svg class="w-24 h-24 mx-auto mb-4 opacity-20" style="color: hsl(var(--color-text-muted));" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+        </svg>
+        <h3 class="text-2xl font-bold mb-2" style="color: hsl(var(--color-text-primary));">لا توجد سيارات</h3>
+        <p class="text-lg" style="color: hsl(var(--color-text-secondary));">لم نجد أي سيارات تطابق البحث</p>
+        <%= link_to "عرض جميع السيارات", ferrari_cars_path, class: "btn-primary btn-md mt-6 inline-block" %>
+      </div>
+    <% end %>
+  </section>
+
+</div>
